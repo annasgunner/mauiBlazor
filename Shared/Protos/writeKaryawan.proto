@@ -1,0 +1,37 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Shared.Protos";
+package WriteKaryawanPackage;
+
+import "google/protobuf/timestamp.proto";
+
+service svpWriteKaryawan { 
+	rpc InsertKaryawan (WriteKaryawanRequest) returns (WriteKaryawanReply);
+	rpc UpdateKaryawan (UpdateKaryawanRequest) returns (WriteKaryawanReply);
+	rpc DeleteKaryawan (DeleteKaryawanRequest) returns (WriteKaryawanReply);
+} 
+
+message WriteKaryawanRequest {
+	string NamaLengkap = 1;
+	string NamaPanggilan = 2;
+	string Alamat = 3;
+	optional string Kota = 4;
+}
+
+message UpdateKaryawanRequest{
+	string IdKaryawan = 1;
+	string NamaLengkap = 2;
+	string NamaPanggilan = 3;
+	string Alamat = 4;
+	optional string Kota = 5;
+}
+
+message DeleteKaryawanRequest {
+	string IdKaryawan = 1;
+}
+
+message WriteKaryawanReply {
+	bool IsOK = 1;
+	string Hasil = 2;
+}
+

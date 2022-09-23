@@ -1,0 +1,42 @@
+﻿@page "/gridlookup"
+
+@using mauiBlazor.Data
+@inject WeatherForecastService ForecastService
+@inject CustomerService CustomerService
+@inject DialogService DialogService
+<h3>Radzen Grid Lookup</h3>
+
+<RadzenDropDownDataGrid TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+						AllowFiltering="true" AllowClear="true" AllowFilteringByAllStringColumns="true"
+                        Data=@(CustomerService.Customers) Style="width: 100%" AllowColumnResize="true" Placeholder="Pilih Data"
+						TextProperty="Nama" ValueProperty="Id" FilterOperator="StringFilterOperator.Contains" AllowVirtualization="true"
+                        Change=@(args => OnChange(args))>
+  <Columns>
+		<RadzenDropDownDataGridColumn Property="Prefix" Title="Prefix" />
+		<RadzenDropDownDataGridColumn Property="Nama" Title="Nama" />
+  </Columns>
+</RadzenDropDownDataGrid>
+
+<br/>
+<RadzenLogin AllowRegister="false" AllowResetPassword="true" Login="( args => OnLogin(args))"/>
+
+@code {
+	RadzenDataGrid<WeatherForecast> grid;
+	private WeatherForecast[] forecasts;
+	private IList<WeatherForecast> dataDipilih { get; set; }
+	int orderID = 10248;
+	protected override async Task OnInitializedAsync()
+	{
+		forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
+
+	}
+
+	void OnChange(object value)
+	{
+		var str = value is IEnumerable<object> ? string.Join(", ", (IEnumerable<object>)value) : value;
+	}
+
+	void OnLogin(LoginArgs args){
+
+	}
+}

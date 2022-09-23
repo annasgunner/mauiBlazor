@@ -1,0 +1,26 @@
+﻿<div class="mb-3 col-md-6">
+	<label class="form-label">@Caption</label>
+    <input type="text" class="form-control" @bind-value="@Text">
+</div>
+
+@code {
+    [Parameter]
+    public string? Caption { get; set; }
+
+    private string _value;
+
+    [Parameter]
+    public string Text 
+    { 
+        get => _value;
+        set 
+        { if (_value == value) return;
+            _value = value;
+            TextChanged.InvokeAsync(value);
+        }
+    }
+    [Parameter]
+    public EventCallback<string> TextChanged { get; set; }
+
+    
+}

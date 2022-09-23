@@ -1,0 +1,43 @@
+﻿@page "/customtabel"
+
+@using Mapster
+@using Newtonsoft.Json.Linq
+@using mauiBlazor.Data
+@inject WeatherForecastService ForecastService
+@inject CustomerService CustomerService
+@inject DataService DataService
+
+<p>Custom tabel dengan auto generate header tabel.</p>
+<mauiBlazor.Controls.PthTabel Items="forecasts"/>
+
+<br />
+<p>Custom tabel tanpa auto generate header tabel.</p>
+<pthRazorLibrary.Controls.PthTabel Items="dataKaryawan">
+	<Column>
+		<RadzenDataGridColumn TItem="uioT1Karyawan" Property="NamaLengkap" Title="NamaLengkap"></RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="uioT1Karyawan" Property="NamaPanggilan" Title="NamaPanggilan"></RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="uioT1Karyawan" Property="Alamat" Title="Alamat"></RadzenDataGridColumn>
+	</Column>
+</pthRazorLibrary.Controls.PthTabel>
+<br />
+@code {
+	public string Test = "123";
+	private Customer _dataDipilih { get; set; }
+	private WeatherForecast[] forecasts;
+	private List<uioT1Karyawan> dataKaryawan = new List<uioT1Karyawan>();
+    protected override async Task OnInitializedAsync()
+    {
+		forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
+        dataKaryawan.Clear();
+		dataKaryawan.Clear();
+		dataKaryawan = await DataService.GetDataKaryawan();
+		this.StateHasChanged();
+    }
+	private void OnDataDipilih(object value)
+	{
+		var json = System.Text.Json.JsonSerializer.Serialize(value);
+		JObject obj = JObject.Parse(json);
+		object data = (object)obj["Data"];
+		_dataDipilih = System.Text.Json.JsonSerializer.Deserialize<Customer>(data.ToString());
+	}
+}

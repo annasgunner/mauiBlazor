@@ -1,0 +1,69 @@
+﻿@typeparam TData
+@inject IJSRuntime js
+@inject DialogService DialogService
+<RadzenProgressBar Value="1500" ShowValue="false" ProgressBarStyle="ProgressBarStyle.Light" Mode="ProgressBarMode.Indeterminate" Visible="@IsLoading" />
+<RadzenSplitter Orientation="Radzen.Orientation.Vertical" Collapse=@OnCollapse Expand=@OnExpand style="height: 900px; border: 0px solid rgba(0,0,0,.08);">
+	<RadzenSplitterPane Size="100px">
+		<RadzenSplitter Collapse=@OnCollapse Expand=@OnExpand>
+			<RadzenSplitterPane Size="30%" Min="30px" Max="50%" Visible="@IsRekapitulasiVisible">
+				<h5>Rekapitulasi</h5>
+				<mauiBlazor.Controls.PthTabel Items="@DataRekapitulasi"  />
+			</RadzenSplitterPane>
+			<RadzenSplitterPane @oncontextmenu="OnMouseKlikKanan">
+				@Form
+			</RadzenSplitterPane>
+		</RadzenSplitter>
+	</RadzenSplitterPane>
+</RadzenSplitter>
+<div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<ul style="list-style:square;">
+					<li><button class="dropdown-item" type="button" @onclick=@OnSimpanData>Simpan</button></li>
+					<li><button class="dropdown-item" type="button" @onclick="@OnHapusData">Hapus</button></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<a class="btn btn-primary" id="popup" hidden="hidden" data-bs-toggle="modal" href="#exampleModalToggle" role="button"></a>
+@code {
+	private IJSObjectReference module;
+
+	[Parameter]
+	public bool IsRekapitulasiVisible { get; set; } = true;
+	[Parameter]
+	public bool IsLoading { get; set; } = false;
+	[Parameter]
+	public RenderFragment? Form { get; set; }
+	[Parameter]
+	public IList<TData> DataRekapitulasi { get; set; }
+	[Parameter]
+	public EventCallback OnSelectedItem { get; set; }
+	[Parameter]
+	public EventCallback OnSimpanData{ get; set; }
+	[Parameter]
+	public EventCallback OnHapusData { get; set; }
+
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		module = await js.InvokeAsync<IJSObjectReference>("import", "./Controls/PthRekaptulasi.razor.js");
+	}
+
+	private async void OnMouseKlikKanan(MouseEventArgs args)
+	{
+		if (args.Button == 2){
+			await module.InvokeAsync<string>("TampilkanPopup");
+		}
+	}
+
+	void OnCollapse(RadzenSplitterEventArgs args)
+	{
+	}
+	void OnExpand(RadzenSplitterEventArgs args)
+	{
+	}
+
+}

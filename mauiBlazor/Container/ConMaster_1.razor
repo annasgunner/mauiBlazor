@@ -1,0 +1,167 @@
+﻿@typeparam TData
+@using Newtonsoft.Json.Linq
+@using mauiBlazor.Data
+@inject IJSRuntime js
+@inject DialogService DialogService
+@inject DataService DataService
+@inject ContextMenuService CMS
+
+<RadzenProgressBar Value="1500" ShowValue="false" ProgressBarStyle="ProgressBarStyle.Light" Mode="ProgressBarMode.Indeterminate" Visible="@IsLoading" />
+<RadzenSplitter Orientation="Radzen.Orientation.Vertical" Collapse=@OnCollapse Expand=@OnExpand style="height: 900px; border: 0px solid rgba(0,0,0,.08);">
+	<RadzenSplitterPane Size="100px">
+		<RadzenSplitter Collapse=@OnCollapse Expand=@OnExpand>
+			<RadzenSplitterPane Size="30%" Min="30px" Max="50%" Visible="@IsRekapitulasiVisible">
+				<h5>Rekapitulasi</h5>
+				<RadzenDataGrid Data="@DataSourceRekapitulasi" TItem="TData" AllowPaging="true"
+								AllowFiltering="true" AllowSorting="true" AllowColumnResize="true"
+								AllowColumnPicking="true" RowClick="@(args => OnDataDipilih(args))"
+								FilterMode="Radzen.FilterMode.SimpleWithMenu" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive"
+								SelectionMode="Radzen.DataGridSelectionMode.Single" @bind-Value="SelectedData"
+								AllowMultiColumnSorting="true" ShowMultiColumnSortingIndex="true">
+					<Columns>
+						@rfRekapitulasi
+						@if (rfRekapitulasi == null)
+						{
+							@foreach (var item in AtributForm)
+							{
+								<RadzenDataGridColumn TItem="TData" Property="@item.Field" Title="@item.CaptionRekapitulasi" Visible="@item.TampilRekapitulasi"></RadzenDataGridColumn>
+							}
+						}
+					</Columns>
+				</RadzenDataGrid>
+			</RadzenSplitterPane>
+			<RadzenSplitterPane @oncontextmenu="OnMouseKlikKanan">
+				<h5>@HeaderDetil</h5>
+				<div class="container-fluid">
+					<div class="row">
+						@rfDetil
+						@if (rfDetil == null)
+						{
+							@foreach (var item in AtributDetil)
+							{
+								<mauiBlazor.Controls.PthEntri Caption="@item.CaptionDetil" @bind-Text=item.Value />
+							}
+						}
+					</div>
+				</div>
+			</RadzenSplitterPane>
+		</RadzenSplitter>
+	</RadzenSplitterPane>
+</RadzenSplitter>
+<div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered modal-sm">
+		<div class="modal-content">
+			<div class="modal-body">
+				<ul style="list-style:square;">
+					<li><button class="dropdown-item" type="button" @onclick=@OnDataBaru>Data Baru</button></li>
+					<li><button class="dropdown-item" type="button" @onclick=@OnSimpanData>Simpan</button></li>
+					<li><button class="dropdown-item" type="button" @onclick="@OnHapusData">Hapus</button></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<a class="btn btn-primary" id="popup" hidden="hidden" data-bs-toggle="modal" href="#exampleModalToggle" role="button"></a>
+@code {
+	private IJSObjectReference module;
+
+	public string HeaderDetil { get; set; }
+	public bool IsRekapitulasiVisible { get; set; } = true;
+	public bool IsLoading { get; set; } = false;
+	public IList<TData>? DataSourceRekapitulasi { get; set; }
+	public EventCallback OnSelectedItem { get; set; }
+
+	private List<uioT9AtributForm> AtributForm = new List<uioT9AtributForm>();
+	public List<uioT9AtributForm> AtributDetil = new List<uioT9AtributForm>();
+	public RenderFragment? rfRekapitulasi { get; set; }
+	public RenderFragment? rfDetil { get; set; }
+	public IList<TData> SelectedData { get; set; }
+	public TData _item { get; set; }
+	public Guid IdForm { get; set; } = Guid.Empty;
+	public Guid IdKaryawan { get; set; } = Guid.Empty;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		module = await js.InvokeAsync<IJSObjectReference>("import", "./Container/ConMaster_1.razor.js");
+	}
+
+	protected override async void OnParametersSet()
+	{
+		AtributForm.Clear();
+		AtributForm = await DataService.GetT9AtributForm(IdForm, IdKaryawan);
+		AtributDetil = new List<uioT9AtributForm>(AtributForm.Where(w => w.TampilDetil == true).OrderBy(o => o.Urutan));
+
+		//if (DataSourceRekapitulasi is null) return;
+		//var json = System.Text.Json.JsonSerializer.Serialize(DataSourceRekapitulasi);
+		//JArray array = JArray.Parse(json);
+		//var loop = 0;
+		//foreach (JObject content in array)
+		//{
+		//	if (loop == 0)
+		//		foreach (JProperty prop in content.Properties())
+		//		{
+
+		//			var x = AtributForm.Where(e => e.Contains(prop.Name));
+		//			if (!x.Any())
+		//			{
+		//				Atribut.Add(prop.Name);
+
+		//			}
+		//		}
+		//	loop++;
+		//}
+	}
+
+	void OnDataDipilih(object value)
+	{
+		HeaderDetil = "";
+		var json = System.Text.Json.JsonSerializer.Serialize(value);
+		JObject obj = JObject.Parse(json);
+		JObject data = (JObject)obj["Data"];
+		foreach (JProperty prop in data.Properties())
+		{
+			var x = AtributDetil.FirstOrDefault(e => e.Field == prop.Name);
+			if (x != null)
+			{
+				if (HeaderDetil == "" && prop.Value.ToString().Substring(0, 2) != "Id")
+					HeaderDetil = $"MENGEDIT '{prop.Value.ToString()}'";
+				x.Value = prop.Value.ToString();
+			}
+		}
+	}
+
+	private async void OnMouseKlikKanan(MouseEventArgs args)
+	{
+		if (args.Button == 2){
+			await module.InvokeAsync<string>("TampilkanPopup");
+		}
+	}
+
+	void OnCollapse(RadzenSplitterEventArgs args)
+	{
+	}
+	void OnExpand(RadzenSplitterEventArgs args)
+	{
+	}
+
+	async void OnDataBaru()
+	{
+		HeaderDetil = "MEMBUAT DATA BARU";
+		foreach (var item in AtributDetil)
+		{
+			item.Value = "";
+		}
+	}
+	public virtual async void OnSimpanData()
+	{
+		var item = AtributDetil;
+	}
+	async void OnHapusData()
+	{
+		foreach (var item in AtributDetil)
+		{
+			item.Value = "";
+		}
+		await module.DisposeAsync();
+	}
+}

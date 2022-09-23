@@ -1,0 +1,38 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Shared.Protos";
+package ReadKaryawanPackage;
+
+import "google/protobuf/timestamp.proto";
+
+service svpReadKaryawan { 
+	rpc GetAll (GetAllKaryawanRequest) returns (GetAllKaryawanReply); 
+	rpc GetAllStream (GetAllKaryawanRequest) returns (stream proKaryawan); 
+	rpc GetKaryawanById (GetKaryawanByIdRequest) returns (proKaryawan);
+} 
+
+message GetAllKaryawanStreamRequest {
+	proKaryawan Karyawan = 1;
+}
+
+message GetAllKaryawanRequest {
+
+}
+
+message GetKaryawanByIdRequest {
+	string Id = 1;
+}
+
+message GetAllKaryawanReply { 
+	repeated proKaryawan DaftarKaryawan = 1; 
+} 
+
+message proKaryawan { 
+	optional string IdKaryawan = 1; 
+	optional string IdJabatan = 2; 
+	optional string IdDivisiPerusahaan = 3; 
+	optional string NamaLengkap = 4; 
+	optional string NamaPanggilan = 5;
+	optional string Alamat = 6; 
+	optional string Kota = 7; 
+}

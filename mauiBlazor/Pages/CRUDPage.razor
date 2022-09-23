@@ -1,0 +1,88 @@
+﻿@page "/crudpage"
+@using Newtonsoft.Json.Linq
+@using mauiBlazor.Data
+@inject DataService DataService
+<mauiBlazor.Controls.PthRekaptulasi DataRekapitulasi="@_daftarKaryawan" OnSelectedItem="@(args => OnDataDipilih(args))"
+	IsLoading="@_isLoading" IsRekapitulasiVisible="true" OnSimpanData="@OnSimpanData" OnHapusData="@OnHapusData">
+	<Form>
+		<mauiBlazor.Controls.PthForm NamaForm="@_namaForm">
+			<KontenForm>
+				<mauiBlazor.Controls.PthEntri Caption="Nama Lengkap" @bind-Text=@_karyawan.NamaLengkap />
+				<mauiBlazor.Controls.PthEntri Caption="Nama Panggilan" @bind-Text="@_karyawan.NamaPanggilan" />
+				<mauiBlazor.Controls.PthEntri Caption="Alamat" @bind-Text="@_karyawan.Alamat" />
+				<mauiBlazor.Controls.PthEntri Caption="Kota" @bind-Text="@_karyawan.Kota" />
+			</KontenForm>
+		</mauiBlazor.Controls.PthForm>
+	</Form>
+</mauiBlazor.Controls.PthRekaptulasi>
+@code{
+	private string _namaForm { get; set; } = "Tambah Karyawan";
+	private List<uioT1Karyawan> _daftarKaryawan = new List<uioT1Karyawan>();
+	private uioT1Karyawan _karyawan { get; set; } = new uioT1Karyawan();
+
+	private bool _isVisible { get; set; } = true;
+	private bool _isLoading { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		_daftarKaryawan.Clear();
+		_daftarKaryawan = await DataService.GetDataKaryawan();
+		this.StateHasChanged();
+	}
+
+	void OnDispose()
+	{
+
+	}
+
+	async void OnSimpanData()
+	{
+		_isLoading = true;
+		await Task.Delay(250);
+		var hasil = false;
+		if (_namaForm.Contains("Tambah"))
+		{
+			hasil = await DataService.InsertKaryawan(_karyawan);
+		}
+		else
+		{
+			hasil = await DataService.UpdateKaryawan(_karyawan);
+		}
+		if(hasil)
+			_karyawan = new uioT1Karyawan();
+		await OnInitializedAsync();
+		_isLoading = false;
+		StateHasChanged();
+	}
+
+	void OnDataDipilih(object value)
+	{
+		var json = System.Text.Json.JsonSerializer.Serialize(value);
+		JObject obj = JObject.Parse(json);
+		object data = (object)obj["Data"];
+		uioT1Karyawan dataDipilih = System.Text.Json.JsonSerializer.Deserialize<uioT1Karyawan>(data.ToString());
+		_karyawan = dataDipilih;
+		_namaForm = "Form Edit Karyawan";
+	}
+
+	private async void OnHapusData(){
+		_isLoading = true;
+		await Task.Delay(250);
+		var hasil = await DataService.DeleteKaryawan(_karyawan.IdKaryawan);
+		if (hasil)
+		{
+			_karyawan = new uioT1Karyawan();
+			await OnInitializedAsync();
+		}
+		_isLoading = false;
+		StateHasChanged();
+	}
+
+	void OnCollapse(RadzenSplitterEventArgs args)
+	{
+	}
+
+	void OnExpand(RadzenSplitterEventArgs args)
+	{
+	}
+}

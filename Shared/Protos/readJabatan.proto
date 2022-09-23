@@ -1,0 +1,33 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Shared.Protos";
+package ReadJabatanPackage;
+
+import "google/protobuf/timestamp.proto";
+
+service svpReadJabatan { 
+	rpc GetAll (GetAllJabatanRequest) returns (GetAllJabatanReply); 
+	rpc GetAllStream (GetAllJabatanRequest) returns (stream proJabatan); 
+	rpc GetJabatanById (GetJabatanByIdRequest) returns (proJabatan);
+} 
+
+message GetAllJabatanstreamRequest {
+	proJabatan Jabatan = 1;
+}
+
+message GetAllJabatanRequest {
+
+}
+
+message GetJabatanByIdRequest {
+	string Id = 1;
+}
+
+message GetAllJabatanReply { 
+	repeated proJabatan DaftarKaryawan = 1; 
+} 
+
+message proJabatan {
+	optional string IdJabatan = 1; 
+	optional string Jabatan = 2; 
+}

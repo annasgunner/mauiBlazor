@@ -1,0 +1,21 @@
+﻿    <h5>@NamaForm</h5>
+	<div class="container-fluid">
+		<div class="row">
+			@KontenForm
+		</div>
+		<div class="row justify-content-center">
+			<div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+				@FooterForm
+			</div>
+		</div>
+	</div>
+@code {
+	[Parameter]
+	public string NamaForm { get; set; }
+
+    [Parameter]
+    public RenderFragment? KontenForm { get; set; }
+
+    [Parameter]
+    public RenderFragment? FooterForm { get; set; }
+}

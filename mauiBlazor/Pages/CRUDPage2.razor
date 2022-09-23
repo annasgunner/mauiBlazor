@@ -1,0 +1,45 @@
+﻿@page "/crudpage2"
+@using Newtonsoft.Json.Linq
+@using mauiBlazor.Data
+@using mauiBlazor.Container
+@inject DataService DataService
+@inherits ConMaster_1<uioT1Karyawan>
+
+@{
+	base.BuildRenderTree(__builder);
+}
+
+@code {
+	private uioT1Karyawan _karyawan { get; set; } = new uioT1Karyawan();
+
+	protected override async void OnParametersSet()
+	{
+		IdForm = Guid.Parse("82D64C96-1B3A-ED11-A15E-AC12032FD95F");
+		IdKaryawan = Guid.Parse("CD8C918B-482D-4CB9-4225-08DA9A0DFE3C");
+		base.OnParametersSet();
+	}
+	protected override async Task OnInitializedAsync()
+	{
+		DataSourceRekapitulasi = new List<uioT1Karyawan>();
+		DataSourceRekapitulasi = await DataService.GetDataKaryawan();
+		this.StateHasChanged();
+	}
+	//public override async void OnSimpanData()
+	//{
+	//	base.OnSimpanData();
+
+	//	//var karyawan = new uioT1Karyawan();
+	//	//foreach(var item in AtributDetil)
+	//	//{
+	//	//	karyawan.
+	//	//}
+	//}
+
+	void OnCollapse(RadzenSplitterEventArgs args)
+	{
+	}
+
+	void OnExpand(RadzenSplitterEventArgs args)
+	{
+	}
+}

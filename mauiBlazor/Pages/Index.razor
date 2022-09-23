@@ -1,0 +1,49 @@
+﻿@page "/"
+@using Mapster
+@using mauiBlazor.Data
+@inject DataService DataService
+@inject CustomerService CustomerService
+
+<h1>DevExpress</h1>
+
+<DxButton Text="Column Chooser" RenderStyle="ButtonRenderStyle.Secondary"
+           CssClass="colum-chooser-button" Click="OnKolomDipilih" />
+<p />
+<DxGrid Data="@dataKaryawan" ShowFilterRow="true" @ref="Grid" ColumnResizeMode="GridColumnResizeMode.NextColumn">
+	<Columns>
+        <DxGridCommandColumn Visible="false" Caption="Opsi"/>
+        <DxDataGridSelectionColumn Visible="false"/>
+        <DxGridDataColumn FieldName="NamaLengkap" Caption="Nama Lengkap" VisibleIndex="0" />
+        <DxGridDataColumn FieldName="NamaPanggilan" Caption="Nama Panggilan" />
+        <DxGridDataColumn FieldName="Alamat" Caption="Alamat" />
+    </Columns>  
+</DxGrid>
+
+<p />
+<DxComboBox Data="@CustomerService.Customers" @bind-Value="dataDipilih" EditFormat="{0} {1}"
+            FilteringMode="DataGridFilteringMode.Contains"ListRenderMode="ListRenderMode.Virtual">
+    <DxListEditorColumn FieldName="Prefix" Caption="Prefix" VisibleIndex="0"></DxListEditorColumn>
+    <DxListEditorColumn FieldName="Nama" Caption="Nama" VisibleIndex="1"></DxListEditorColumn>
+</DxComboBox>
+
+@code{
+    DxGrid Grid { get; set; }
+    private Customer dataDipilih { get; set; } = new Customer();
+    private List<uioT1Karyawan> dataKaryawan = new List<uioT1Karyawan>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        dataKaryawan.Clear();
+        var data = DataService.GetData();
+        await foreach (var item in data)
+        {
+            var karyawan = item.Adapt<uioT1Karyawan>();
+            dataKaryawan.Add(karyawan);
+            this.StateHasChanged();
+        }
+    }
+
+    void OnKolomDipilih(){
+        Grid.ShowColumnChooser(".column-chooser-button");
+    }
+}

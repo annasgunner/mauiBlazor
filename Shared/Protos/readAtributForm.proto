@@ -1,0 +1,29 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Shared.Protos";
+package ReadAtributFormPackage;
+
+service svpReadAtributForm { 
+	rpc GetAtributFormById (GetAtributFormByIdRequest) returns (rpfAtributForm);
+} 
+
+message GetAtributFormByIdRequest {
+	string IdForm = 1;
+	string IdKaryawan = 2;
+}
+
+message rpfAtributForm {
+	repeated proAtributForm proAtributForm = 1;
+}
+
+message proAtributForm {
+	string IdForm = 1; 
+	string IdKaryawan = 2; 
+	string Tabel = 3;
+	string Field = 4;
+	optional bool TampilRekapitulasi = 5;
+	optional bool TampilDetil = 6;
+	optional string CaptionRekapitulasi = 7;
+	optional string CaptionDetil = 8;
+	optional string TipeControl = 9;
+}

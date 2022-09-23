@@ -1,0 +1,47 @@
+﻿@page "/fetchdata"
+@using Mapster
+@using mauiBlazor.Data
+@inject DataService DataService
+
+<PageTitle>Data Karyawan</PageTitle>
+
+<h1>Data Karyawan</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nama Lengkap</th>
+                <th>Nama Panggilan</th>
+                <th>Alamat</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in dataKaryawan)
+            {
+                <tr>
+                    <td>@item.NamaLengkap</td>
+                    <td>@item.NamaPanggilan</td>
+                    <td>@item.Alamat</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+<br />
+<br />
+@code {
+    public List<uioT1Karyawan> dataKaryawan { get; set; } = new List<uioT1Karyawan>();
+	private uioT1Karyawan karyawan { get; set; } = new uioT1Karyawan();
+    protected override async Task OnInitializedAsync()
+    {
+        dataKaryawan.Clear();
+        var data = DataService.GetData();
+        await foreach (var item in data)
+        {
+            var karyawan = item.Adapt<uioT1Karyawan>();
+            dataKaryawan.Add(karyawan);
+            this.StateHasChanged();
+        }
+    }
+}
